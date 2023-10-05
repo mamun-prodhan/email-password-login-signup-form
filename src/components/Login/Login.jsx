@@ -1,13 +1,37 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import auth from "../firebase/firebase.config";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSignIn = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    setError("");
+    setSuccess("");
+    // sign in with email and password
+    signInWithEmailAndPassword(auth, email, password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        setSuccess("Successfully logged in");
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        console.log(errorMessage);
+        setError(errorMessage);
+      });
+  };
 
   return (
     <div>
       <div className="w-[50%] mx-auto mt-12">
         <h2 className="text-4xl font-bold text-center mb-10">Please Login</h2>
-        <form>
+        <form onSubmit={handleSignIn}>
           <input
             className="py-3 px-6 w-full mb-4"
             type="email"
@@ -28,6 +52,9 @@ const Login = () => {
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
+          <br />
+          {error && <p className="font-bold text-red-600">{error}</p>}
+          {success && <p className="font-bold text-green-600">{success}</p>}
           <input
             className="btn btn-secondary w-full"
             type="submit"
